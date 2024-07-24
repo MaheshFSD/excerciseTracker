@@ -1,9 +1,17 @@
 const mongoose = require('mongoose');
 
 const excercisSchema = new mongoose.Schema({
-    username: "fcc_test",
-    description: "test",
-    duration: 60,
+    username: String,
+    description: {
+        type: String,
+        required: true
+    },
+    duration: {
+        type: Number,
+        required: true
+    },
     date: "Mon Jan 01 1990",
-    _id: "5fb5853f734231456ccb3b05"
+    user_id: {type: String, required: true}
 })
+
+const Excercise = mongoose.model('Excercise', excercisSchema);
