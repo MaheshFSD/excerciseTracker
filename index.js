@@ -4,6 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const connectToDB = require('./config');
 const User = require('./models/user.model');
+const Excercise = require('./models/excercise.model');
 
 connectToDB(process.env.mongourl)
 .then(() => console.log('DB Connection sucessfull...'))
@@ -35,24 +36,35 @@ app.post('/api/users', async (req,res) => {
 
 // Add excercise details of a user
 app.post('/api/users/:_id/exercises', async (req,res) => {
-  console.log(req.body, req.body[':_id'], ' ------------- body ----');
+  console.log(req.body, req.body[':_id'],req.params._id, ' ------------- body ----');
+  const {duration, date, description} = req.body;
+  const id = req.params._id;
   // validate whether the user is there or not and 
   try {
-      const user = await User.findOne({_id: req.body[':_id']});
-      console.log(user, ' ------- user');
-      if(user.username) {
+      const user = await User.findOne({_id: id});
+      // console.log(user, ' ------- user');
+      if(!user) res.send('User not found.')
+      else {
         const excercise = new Excercise({
           username: user.username,
-          description: req.body.description,
-          duration: req.body.duration,
-          date: req.body.date? new Date(req.body.date): new Date()
+          description: description,
+          duration: duration,
+          date: date? new Date(date): new Date(),
+          userId: id
         })
         const doc = await excercise.save();
+        console.log(doc, ' --------- inserted doc =------- ');
+        res.json({
+          username: doc.username,
+          description: doc.description,
+          duration: doc.duration,
+          date: new Date(doc.date).toDateString(),
+          _id: user._id
+        })
       }
   } catch (error) {
     console.log(error);
   }
-  res.send('hello');
 })
 
 const listener = app.listen(process.env.PORT || 3000, () => {
