@@ -33,10 +33,27 @@ app.post('/api/users', async (req,res) => {
   }
 })
 
-// Add excercise details to a user
-// app.post('/api/users/:_id/exercises', async (req,res) => {
-//   const bodyData = 
-// })
+// Add excercise details of a user
+app.post('/api/users/:_id/exercises', async (req,res) => {
+  console.log(req.body, req.body[':_id'], ' ------------- body ----');
+  // validate whether the user is there or not and 
+  try {
+      const user = await User.findOne({_id: req.body[':_id']});
+      console.log(user, ' ------- user');
+      if(user.username) {
+        const excercise = new Excercise({
+          username: user.username,
+          description: req.body.description,
+          duration: req.body.duration,
+          date: req.body.date? new Date(req.body.date): new Date()
+        })
+        const doc = await excercise.save();
+      }
+  } catch (error) {
+    console.log(error);
+  }
+  res.send('hello');
+})
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
