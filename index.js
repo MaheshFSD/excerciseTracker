@@ -68,7 +68,7 @@ app.post('/api/users/:_id/exercises', async (req,res) => {
 })
 
 // route to get all the users
-app.get('api/users', async (req, res) => {
+app.get('/api/users', async (req, res) => {
   const users = await User.find();
   if(!users) res.send('No users')
   else res.json(users);
@@ -95,7 +95,7 @@ app.get('/api/users/:_id/logs', async (req,res)=> {
           const log = excersises.map(e => ({
             description: e.description,
             duration: e.duration,
-            date: new Date(e.date).toDateString()
+            date: e.date.toDateString()
           }))
           res.json({
             username: user._id,
