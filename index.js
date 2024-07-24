@@ -74,6 +74,44 @@ app.get('api/users', async (req, res) => {
   else res.json(users);
 })
 
+// creating a get route for getting the logs of a user
+app.get('/api/users/:_id/logs', async (req,res)=> {
+  const id = req.params._id;
+  const {from, to, limit} = req.query;
+  if(id) {
+    const user = await User.findOne({_id: id})
+    if(!user) res.send('No user found for the id');
+    else{
+      const dateFilter = {}
+      const filter = {userId: id}
+      if(from) dateFilter.$gte = new Date(from);
+      if(to) dateFilter.$lte = new Date(to);
+      if(from || to) filter.date = dateFilter;
+
+      try {
+        const excersises = await Excercise.find(filter).limit(+limit ?? 100);
+        if(!excersises) res.send('You havenot started working out');
+        else {
+          const log = excersises.map(e => ({
+            description: e.description,
+            duration: e.duration,
+            date: new Date(e.date).toDateString()
+          }))
+          res.json({
+            username: user._id,
+            count: excersises.length,
+            _id: user._id,
+            log
+          })
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+  else console.log('Id is required here....');
+})
+
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
